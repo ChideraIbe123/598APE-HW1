@@ -2,7 +2,9 @@
 #define __PLANE_H__
 
 #include "shape.h"
-
+struct SolveCache {
+  double ax, ay, az, bx, by, bz, cx, cy, cz;
+};
 class Plane : public Shape {
   public:
     Vector vect, right, up;
@@ -19,6 +21,9 @@ class Plane : public Shape {
     void setYaw(double d);
     void setPitch(double d);
     void setRoll(double d);
+    SolveCache cache;
+    void useCache();
+    void fillCache();
 };
 
 #endif

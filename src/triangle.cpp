@@ -45,13 +45,17 @@ Triangle::Triangle(Vector c, Vector b, Vector a, Texture* t)
     thirdX = np.x;
 
     d = -vect.dot(center);
+    fillCache();
 }
 
 double Triangle::getIntersection(Ray ray) {
     double time = Plane::getIntersection(ray);
     if (time == inf)
         return time;
-    Vector dist = solveScalers(right, up, vect, ray.point + ray.vector * time - center);
+    Vector C = ray.point + ray.vector * time - center;
+    Vector dist(cache.ax * C.x + cache.ay * C.y + cache.az * C.z,
+                cache.bx * C.x + cache.by * C.y + cache.bz * C.z,
+                cache.cx * C.x + cache.cy * C.y + cache.cz * C.z);
     unsigned char tmp =
         (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) < 0.0;
     return ((tmp != (textureX * dist.y < 0.0)) ||
@@ -66,7 +70,10 @@ bool Triangle::getLightIntersection(Ray ray, double* fill) {
     const double r = -norm / t;
     if (r <= 0. || r >= 1.)
         return false;
-    Vector dist = solveScalers(right, up, vect, ray.point + ray.vector * r - center);
+    Vector C = ray.point + ray.vector * r - center;
+    Vector dist(cache.ax * C.x + cache.ay * C.y + cache.az * C.z,
+                cache.bx * C.x + cache.by * C.y + cache.bz * C.z,
+                cache.cx * C.x + cache.cy * C.y + cache.cz * C.z);
 
     unsigned char tmp =
         (thirdX - dist.x) * textureY + (thirdX - textureX) * (dist.y - textureY) < 0.0;
