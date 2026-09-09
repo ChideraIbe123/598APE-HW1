@@ -4,21 +4,22 @@
 #if defined(_MSC_VER)
 #define popen _popen
 #endif
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
-class Texture{
-public:
-/** from 0 to 1 **/
-   double opacity, reflection, ambient;
-   Texture(double am, double op, double ref);
-   virtual void getColor(unsigned char* toFill, double* am, double *opacity, double *reflection,double x, double y) = 0;
-   Texture* clone();
+class Texture {
+  public:
+    /** from 0 to 1 **/
+    double opacity, reflection, ambient;
+    Texture(double am, double op, double ref);
+    virtual void getColor(unsigned char* toFill, double* am, double* opacity, double* reflection,
+                          double x, double y) = 0;
+    Texture* clone();
 };
 
- double interpolate(double a,double b,double x);
- 
+double interpolate(double a, double b, double x);
+
 const char* findExtension(const char* s);
 
 double ground(double e);
