@@ -38,17 +38,17 @@ typedef struct {
     Shape* shape;
 } TimeAndShape;
 
-void insertionSort(TimeAndShape* arr, int n) {
-    for (int i = 1; i < n; ++i) {
-        TimeAndShape key = arr[i];
-        int j = i - 1;
-        while (j >= 0 && arr[j].time > key.time) {
-            arr[j + 1] = arr[j];
-            j = j - 1;
-        }
-        arr[j + 1] = key;
-    }
-}
+// void insertionSort(TimeAndShape* arr, int n) {
+//     for (int i = 1; i < n; ++i) {
+//         TimeAndShape key = arr[i];
+//         int j = i - 1;
+//         while (j >= 0 && arr[j].time > key.time) {
+//             arr[j + 1] = arr[j];
+//             j = j - 1;
+//         }
+//         arr[j + 1] = key;
+//     }
+// }
 
 void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth) {
     ShapeNode* t = c->listStart;
@@ -66,8 +66,18 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth) 
         seen++;
         t = t->next;
     }
-    insertionSort(times, seen);
-    if (seen == 0 || times[0].time == inf) {
+    // insertionSort(times, seen);
+    double minimum = inf;
+    Shape* minimumShape = NULL;
+    for (int i = 0; i < seen; i++) {
+        if (times[i].time < minimum) {
+            minimum = times[i].time;
+            minimumShape = times[i].shape;
+            if (minimum < 0)
+                minimum = inf;
+        }
+    }
+    if (seen == 0 || minimum == inf) {
         double opacity, reflection, ambient;
         Vector temp = ray.vector.normalize();
         const double x = temp.x;
@@ -79,8 +89,12 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth) 
         return;
     }
 
-    double curTime = times[0].time;
-    Shape* curShape = times[0].shape;
+    // double curTime = times[0].time;
+    // Shape* curShape = times[0].shape;
+    // free(times);
+
+    double curTime = minimum;
+    Shape* curShape = minimumShape;
     free(times);
 
     Vector intersect = curTime * ray.vector + ray.point;
