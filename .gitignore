@@ -1,3 +1,5 @@
 *.obj
 *.exe
 *.o
+callgrind.out*
+output/*.ppm
