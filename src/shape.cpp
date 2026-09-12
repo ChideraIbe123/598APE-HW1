@@ -52,32 +52,35 @@ typedef struct {
 
 void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth) {
     ShapeNode* t = c->listStart;
-    TimeAndShape* times = (TimeAndShape*)malloc(0);
-    size_t seen = 0;
-    while (t != NULL) {
-        double time = t->data->getIntersection(ray);
+    // TimeAndShape* times = (TimeAndShape*)malloc(0);
+    // size_t seen = 0;
+    // while (t != NULL) {
+    //     double time = t->data->getIntersection(ray);
 
-        TimeAndShape* times2 = (TimeAndShape*)malloc(sizeof(TimeAndShape) * (seen + 1));
-        for (int i = 0; i < seen; i++)
-            times2[i] = times[i];
-        times2[seen] = (TimeAndShape){time, t->data};
-        free(times);
-        times = times2;
-        seen++;
-        t = t->next;
-    }
+    //     TimeAndShape* times2 = (TimeAndShape*)malloc(sizeof(TimeAndShape) * (seen + 1));
+    //     for (int i = 0; i < seen; i++)
+    //         times2[i] = times[i];
+    //     times2[seen] = (TimeAndShape){time, t->data};
+    //     free(times);
+    //     times = times2;
+    //     seen++;
+    //     t = t->next;
+    // }
     // insertionSort(times, seen);
     double minimum = inf;
     Shape* minimumShape = NULL;
-    for (int i = 0; i < seen; i++) {
-        if (times[i].time < minimum) {
-            minimum = times[i].time;
-            minimumShape = times[i].shape;
+    while (t != NULL) {
+        double time = t->data->getIntersection(ray);
+        if (time < minimum) {
+            minimum = time;
+            minimumShape = t->data;
             if (minimum < 0)
                 minimum = inf;
         }
+        t = t->next;
     }
-    if (seen == 0 || minimum == inf) {
+
+    if (minimum == inf) {
         double opacity, reflection, ambient;
         Vector temp = ray.vector.normalize();
         const double x = temp.x;
@@ -95,7 +98,7 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth) 
 
     double curTime = minimum;
     Shape* curShape = minimumShape;
-    free(times);
+    // free(times);
 
     Vector intersect = curTime * ray.vector + ray.point;
     double opacity, reflection, ambient;
