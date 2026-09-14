@@ -3,3 +3,4 @@
 *.o
 callgrind.out*
 output/*.ppm
+work.md
