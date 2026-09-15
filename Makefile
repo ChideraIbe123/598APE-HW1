@@ -1,7 +1,7 @@
 FUNC := g++
 copt := -c 
 OBJ_DIR := ./bin/
-FLAGS := -O3 -flto -lm -g -Werror
+FLAGS := -O3 -flto -fopenmp -lm -g -Werror
 
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(CPP_FILES:.cpp=.obj)))

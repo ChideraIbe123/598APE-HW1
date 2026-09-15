@@ -4,3 +4,4 @@
 callgrind.out*
 output/*.ppm
 work.md
+figures/
