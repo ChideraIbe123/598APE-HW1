@@ -1,4 +1,5 @@
 #include "shape.h"
+#include "triangle.h"
 
 Shape::Shape(const Vector& c, Texture* t, double ya, double pi, double ro)
     : center(c), texture(t), yaw(ya), pitch(pi), roll(ro) {};
@@ -78,6 +79,20 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth) 
                 minimum = inf;
         }
         t = t->next;
+    }
+
+    for (TriangleGroup* g = c->groupStart; g != NULL; g = g->next) {
+        if (!rayHitsBox(ray, g->minB, g->maxB))
+            continue;
+        for (int i = 0; i < g->count; i++) {
+            double time = g->tris[i]->getIntersection(ray);
+            if (time < minimum) {
+                minimum = time;
+                minimumShape = g->tris[i];
+                if (minimum < 0)
+                    minimum = inf;
+            }
+        }
     }
 
     if (minimum == inf) {

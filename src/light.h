@@ -24,6 +24,16 @@ struct ShapeNode {
     ShapeNode *prev, *next;
 };
 
+class Triangle;
+struct TriangleGroup {
+    Vector minB, maxB;
+    Triangle** tris;
+    int count;
+    TriangleGroup* next;
+};
+
+bool rayHitsBox(const Ray& ray, const Vector& minB, const Vector& maxB);
+
 class Autonoma {
   public:
     Camera camera;
@@ -31,6 +41,7 @@ class Autonoma {
     unsigned int depth;
     ShapeNode *listStart, *listEnd;
     LightNode *lightStart, *lightEnd;
+    TriangleGroup* groupStart;
     Autonoma(const Camera& c);
     Autonoma(const Camera& c, Texture* tex);
     void addShape(Shape* s);

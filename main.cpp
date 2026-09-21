@@ -346,13 +346,36 @@ Autonoma* createInputs(const char* inputFile) {
                 unsigned int* polys = getTriangles(triangles, num_polygons);
                 fclose(triangles);
                 Vector offset(off_x, off_y, off_z);
+                TriangleGroup* group = (TriangleGroup*)malloc(sizeof(TriangleGroup));
+                group->tris = (Triangle**)malloc(num_polygons * sizeof(Triangle*));
+                group->count = num_polygons;
+                group->minB = Vector(inf, inf, inf);
+                group->maxB = Vector(-inf, -inf, -inf);
                 for (int i = 0; i < num_polygons; i++) {
-                    Triangle* shape = new Triangle(points[polys[3 * i]] + offset,
-                                                   points[polys[3 * i + 1]] + offset,
-                                                   points[polys[3 * i + 2]] + offset, texture);
-                    MAIN_DATA->addShape(shape);
+                    Vector va = points[polys[3 * i]] + offset;
+                    Vector vb = points[polys[3 * i + 1]] + offset;
+                    Vector vc = points[polys[3 * i + 2]] + offset;
+                    Triangle* shape = new Triangle(va, vb, vc, texture);
                     shape->normalMap = normalMap;
+                    group->tris[i] = shape;
+                    Vector verts[3] = {va, vb, vc};
+                    for (int v = 0; v < 3; v++) {
+                        if (verts[v].x < group->minB.x)
+                            group->minB.x = verts[v].x;
+                        if (verts[v].y < group->minB.y)
+                            group->minB.y = verts[v].y;
+                        if (verts[v].z < group->minB.z)
+                            group->minB.z = verts[v].z;
+                        if (verts[v].x > group->maxB.x)
+                            group->maxB.x = verts[v].x;
+                        if (verts[v].y > group->maxB.y)
+                            group->maxB.y = verts[v].y;
+                        if (verts[v].z > group->maxB.z)
+                            group->maxB.z = verts[v].z;
+                    }
                 }
+                group->next = MAIN_DATA->groupStart;
+                MAIN_DATA->groupStart = group;
             } else {
                 printf("Unknown object type %s\n", object_type);
                 exit(1);

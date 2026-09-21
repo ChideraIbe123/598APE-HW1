@@ -2,6 +2,7 @@
 #include "light.h"
 #include "camera.h"
 #include "shape.h"
+#include "triangle.h"
 
 Light::Light(const Vector& cente, unsigned char* colo) : center(cente) {
     color = colo;
@@ -20,6 +21,7 @@ Autonoma::Autonoma(const Camera& c) : camera(c) {
     listEnd = NULL;
     lightStart = NULL;
     lightEnd = NULL;
+    groupStart = NULL;
     depth = 10;
     skybox = BLACK;
 }
@@ -29,8 +31,39 @@ Autonoma::Autonoma(const Camera& c, Texture* tex) : camera(c) {
     listEnd = NULL;
     lightStart = NULL;
     lightEnd = NULL;
+    groupStart = NULL;
     depth = 10;
     skybox = tex;
+}
+
+bool rayHitsBox(const Ray& ray, const Vector& minB, const Vector& maxB) {
+    double t1 = (minB.x - ray.point.x) / ray.vector.x;
+    double t2 = (maxB.x - ray.point.x) / ray.vector.x;
+    double tlo = (t1 < t2) ? t1 : t2;
+    double thi = (t1 < t2) ? t2 : t1;
+    t1 = (minB.y - ray.point.y) / ray.vector.y;
+    t2 = (maxB.y - ray.point.y) / ray.vector.y;
+    if (t1 > t2) {
+        double tmp = t1;
+        t1 = t2;
+        t2 = tmp;
+    }
+    if (t1 > tlo)
+        tlo = t1;
+    if (t2 < thi)
+        thi = t2;
+    t1 = (minB.z - ray.point.z) / ray.vector.z;
+    t2 = (maxB.z - ray.point.z) / ray.vector.z;
+    if (t1 > t2) {
+        double tmp = t1;
+        t1 = t2;
+        t2 = tmp;
+    }
+    if (t1 > tlo)
+        tlo = t1;
+    if (t2 < thi)
+        thi = t2;
+    return tlo <= thi && thi >= 0.;
 }
 
 void Autonoma::addShape(Shape* r) {
@@ -108,9 +141,18 @@ void getLight(double* tColor, Autonoma* aut, Vector point, Vector norm, unsigned
         Vector ra = t->data->center - point;
         ShapeNode* shapeIter = aut->listStart;
         bool hit = false;
+        Ray shadowRay(point + ra * .01, ra);
         while (!hit && shapeIter != NULL) {
-            hit = shapeIter->data->getLightIntersection(Ray(point + ra * .01, ra), lightColor);
+            hit = shapeIter->data->getLightIntersection(shadowRay, lightColor);
             shapeIter = shapeIter->next;
+        }
+        TriangleGroup* g = aut->groupStart;
+        while (!hit && g != NULL) {
+            if (rayHitsBox(shadowRay, g->minB, g->maxB)) {
+                for (int i = 0; !hit && i < g->count; i++)
+                    hit = g->tris[i]->getLightIntersection(shadowRay, lightColor);
+            }
+            g = g->next;
         }
         double perc = (norm.dot(ra) / (ra.mag() * norm.mag()));
         if (!hit) {
